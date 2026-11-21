@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-accent="blue">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Expense Tracker — Premium v3</title>
+<link rel="stylesheet" href="style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">☰</button>
+
+<!-- ══ ONBOARDING ══ -->
+<div class="onboard-overlay hidden" id="onboard-overlay">
+  <div class="onboard-card">
+    <div class="onboard-steps" id="onboard-steps">
+      <div class="onboard-step active"></div>
+      <div class="onboard-step"></div>
+      <div class="onboard-step"></div>
+    </div>
+    <span class="onboard-icon" id="ob-icon">💳</span>
+    <div class="onboard-title" id="ob-title">Welcome to Expense Tracker</div>
+    <div class="onboard-sub" id="ob-sub">Track every rupee, manage budgets, and build a brighter financial future — all in one place.</div>
+    <button class="btn-submit" id="ob-btn" onclick="onboardNext()" style="width:100%;justify-content:center;font-size:15px;padding:14px">Get Started →</button>
+    <div style="margin-top:14px"><a href="#" onclick="skipOnboard();return false;" style="font-size:13px;color:var(--t-gray)">Skip</a></div>
+  </div>
+</div>
+
+<!-- ══ NOTIFICATION PANEL ══ -->
+<div class="notif-panel hidden" id="notif-panel">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <span style="font-size:15px;font-weight:700;color:var(--t-dark)">🔔 Notifications</span>
+    <button onclick="clearNotifs()" style="font-size:12px;color:var(--blue);background:none;border:none;font-weight:600;cursor:pointer">Clear all</button>
+  </div>
+  <div id="notif-list"></div>
+</div>
+
+<!-- ══ CONTEXT MENU ══ -->
+<div class="ctx-menu hidden" id="ctx-menu">
+  <div class="ctx-item" onclick="ctxEdit()">✏️ Edit Expense</div>
+  <div class="ctx-item" onclick="ctxCopy()">📋 Copy Description</div>
+  <div class="ctx-item danger" onclick="ctxDelete()">🗑️ Delete</div>
+</div>
+
+<!-- ════════════ SIGNUP ════════════ -->
+<div id="page-signup" class="auth-page page active">
+  <div class="mesh-bg"><span></span><span></span><span></span></div>
+  <div class="auth-left">
+    <div class="auth-logo">
+      <div class="logo-icon">💳</div> Expense Tracker
+      <div class="auth-nav-pills"><b>Plan</b> · <b>Track</b> · <b>Save</b></div>
+    </div>
+    <h1>Take control of your<br><span class="grad-text">finances</span> today</h1>
+    <p class="subtitle">Track your expenses, manage your budget and build a better financial future.</p>
+    <ul class="feature-list">
+      <li><div class="feat-icon green">🏠</div><div class="feat-text"><strong>Track Expenses</strong><span>Record your daily expenses easily</span></div></li>
+      <li><div class="feat-icon purple">🍩</div><div class="feat-text"><strong>Manage Categories</strong><span>Organise spending by categories</span></div></li>
+      <li><div class="feat-icon orange">🛡️</div><div class="feat-text"><strong>Set Budgets</strong><span>Stay within your financial limits</span></div></li>
+      <li><div class="feat-icon blue">📋</div><div class="feat-text"><strong>View Reports</strong><span>Get insights with detailed reports</span></div></li>
+    </ul>
+    <div class="auth-illustration">
+      <svg viewBox="0 0 320 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="wg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1E293B"/><stop offset="100%" stop-color="#334155"/></linearGradient></defs>
+        <ellipse cx="160" cy="160" rx="135" ry="115" fill="#EEF2FF" opacity=".8"/>
+        <ellipse cx="160" cy="160" rx="100" ry="85" fill="#E0E7FF" opacity=".45"/>
+        <rect x="192" y="182" width="44" height="32" rx="6" fill="#5B7BFF"/>
+        <ellipse cx="214" cy="182" rx="23" ry="6" fill="#3557FF"/>
+        <path d="M214 182 Q196 148 172 136 Q192 158 214 178Z" fill="#34D399"/>
+        <path d="M214 182 Q234 144 262 132 Q238 157 217 179Z" fill="#10B981"/>
+        <path d="M214 178 Q206 152 194 143 Q207 160 214 174Z" fill="#6EE7B7"/>
+        <rect x="55" y="128" width="166" height="114" rx="18" fill="url(#wg)"/>
+        <rect x="55" y="144" width="166" height="44" fill="#334155"/>
+        <rect x="74" y="147" width="106" height="34" rx="7" fill="#F59E0B"/>
+        <rect x="74" y="147" width="106" height="14" rx="7" fill="#FBBF24"/>
+        <circle cx="166" cy="164" r="9" fill="#D97706" opacity=".7"/>
+        <circle cx="173" cy="164" r="9" fill="#FCD34D" opacity=".85"/>
+        <circle cx="220" cy="187" r="8" fill="#2D3748"/><circle cx="220" cy="187" r="5" fill="#4B5563"/>
+        <ellipse cx="98" cy="242" rx="30" ry="11" fill="#D97706"/>
+        <ellipse cx="98" cy="234" rx="30" ry="11" fill="#F59E0B"/>
+        <ellipse cx="98" cy="226" rx="30" ry="11" fill="#FBBF24"/>
+        <ellipse cx="98" cy="218" rx="30" ry="11" fill="#FCD34D"/>
+        <ellipse cx="80" cy="248" rx="22" ry="8" fill="#F59E0B"/>
+        <ellipse cx="80" cy="241" rx="22" ry="8" fill="#FBBF24"/>
+        <rect x="154" y="104" width="68" height="95" rx="7" fill="white" opacity=".96"/>
+        <rect x="162" y="114" width="52" height="5" rx="2.5" fill="#E5E7EB"/>
+        <rect x="162" y="125" width="42" height="4" rx="2" fill="#E5E7EB"/>
+        <rect x="162" y="135" width="48" height="4" rx="2" fill="#DBEAFE"/>
+        <rect x="162" y="145" width="36" height="4" rx="2" fill="#E5E7EB"/>
+        <rect x="162" y="155" width="50" height="4" rx="2" fill="#E5E7EB"/>
+        <rect x="162" y="168" width="45" height="5" rx="2.5" fill="#3557FF" opacity=".3"/>
+        <circle cx="112" cy="218" r="8" fill="#FDE68A" opacity=".7"/>
+      </svg>
+    </div>
+    <div class="auth-slogan">Better Spending<br>Brighter Future</div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-card-icon">👤</div>
+      <h2>Create your account</h2>
+      <p class="auth-card-sub">Get started with your expense tracking journey</p>
+      <form id="signup-form" novalidate>
+        <div class="form-group">
+          <label>Full Name</label>
+          <div class="input-wrap"><span class="inp-icon">👤</span><input type="text" id="su-name" placeholder="Enter your full name" autocomplete="name"/></div>
+          <div class="field-error hidden" id="su-name-err">⚠ Please enter your full name</div>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <div class="input-wrap"><span class="inp-icon">✉️</span><input type="email" id="su-email" placeholder="Enter your email address" autocomplete="email"/></div>
+          <div class="field-error hidden" id="su-email-err">⚠ Please enter a valid email address</div>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-wrap"><span class="inp-icon">🔒</span><input type="password" id="su-pass" placeholder="Enter your password" autocomplete="new-password" oninput="checkStrength(this.value)"/><button type="button" class="eye-btn" onclick="togglePwd('su-pass',this)">👁</button></div>
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+          <div class="strength-label" id="strength-label" style="color:var(--t-light)"></div>
+          <div class="field-error hidden" id="su-pass-err">⚠ Password must be at least 8 characters long</div>
+        </div>
+        <button type="submit" class="btn-primary">Create Account →</button>
+      </form>
+      <div class="auth-divider">OR</div>
+      <p class="auth-switch">Already have an account? <a href="#" onclick="showPage('page-login');return false;">Login</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ LOGIN ════════════ -->
+<div id="page-login" class="auth-page page">
+  <div class="mesh-bg"><span></span><span></span><span></span></div>
+  <div class="auth-left">
+    <div class="auth-logo"><div class="logo-icon">💳</div> Expense Tracker</div>
+    <h1>Plan the week without<br><span class="grad-text">losing the day.</span></h1>
+    <p class="subtitle">Track your expenses, deadlines and personal to-dos in one place, with reminders that catch what's due before it's overdue.</p>
+    <ul class="feature-list">
+      <li><div class="feat-icon green">📊</div><div class="feat-text"><strong>Track Expenses</strong><span>Record your daily expenses easily</span></div></li>
+      <li><div class="feat-icon purple">🍩</div><div class="feat-text"><strong>Manage Categories</strong><span>Organise spending by categories</span></div></li>
+      <li><div class="feat-icon orange">🛡️</div><div class="feat-text"><strong>Set Budgets</strong><span>Stay within your financial limits</span></div></li>
+      <li><div class="feat-icon blue">📋</div><div class="feat-text"><strong>View Reports</strong><span>Get insights with detailed reports</span></div></li>
+    </ul>
+    <div class="auth-illustration">
+      <svg viewBox="0 0 320 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="160" cy="160" rx="135" ry="115" fill="#EEF2FF" opacity=".8"/>
+        <rect x="192" y="182" width="44" height="32" rx="6" fill="#5B7BFF"/><ellipse cx="214" cy="182" rx="23" ry="6" fill="#3557FF"/>
+        <path d="M214 182 Q196 148 172 136 Q192 158 214 178Z" fill="#34D399"/>
+        <path d="M214 182 Q234 144 262 132 Q238 157 217 179Z" fill="#10B981"/>
+        <rect x="55" y="128" width="166" height="114" rx="18" fill="#1E293B"/>
+        <rect x="55" y="144" width="166" height="44" fill="#334155"/>
+        <rect x="74" y="147" width="106" height="34" rx="7" fill="#F59E0B"/>
+        <rect x="74" y="147" width="106" height="14" rx="7" fill="#FBBF24"/>
+        <circle cx="166" cy="164" r="9" fill="#D97706" opacity=".7"/><circle cx="173" cy="164" r="9" fill="#FCD34D" opacity=".85"/>
+        <circle cx="220" cy="187" r="8" fill="#2D3748"/><circle cx="220" cy="187" r="5" fill="#4B5563"/>
+        <ellipse cx="98" cy="234" rx="30" ry="11" fill="#F59E0B"/><ellipse cx="98" cy="226" rx="30" ry="11" fill="#FBBF24"/>
+        <ellipse cx="98" cy="218" rx="30" ry="11" fill="#FCD34D"/><ellipse cx="80" cy="241" rx="22" ry="8" fill="#FBBF24"/>
+        <rect x="154" y="104" width="68" height="95" rx="7" fill="white" opacity=".96"/>
+        <rect x="162" y="114" width="52" height="5" rx="2.5" fill="#E5E7EB"/><rect x="162" y="125" width="42" height="4" rx="2" fill="#E5E7EB"/>
+        <rect x="162" y="135" width="48" height="4" rx="2" fill="#DBEAFE"/><rect x="162" y="145" width="36" height="4" rx="2" fill="#E5E7EB"/>
+        <rect x="162" y="155" width="50" height="4" rx="2" fill="#E5E7EB"/>
+      </svg>
+    </div>
+    <div class="auth-slogan">Better Spending<br>Brighter Future</div>
+    <p class="auth-footer">© 2026 Expense Tracker System</p>
+  </div>
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-card-icon">👤</div>
+      <h2>Welcome back</h2>
+      <p class="auth-card-sub">Log in to your expense tracker account.</p>
+      <div class="alert-box hidden" id="login-alert">⚠ Invalid email or password</div>
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label>Email</label>
+          <div class="input-wrap"><span class="inp-icon">✉️</span><input type="email" id="li-email" placeholder="Enter your email" autocomplete="email"/></div>
+          <div class="field-error hidden" id="li-email-err">⚠ Please enter a valid email</div>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-wrap"><span class="inp-icon">🔒</span><input type="password" id="li-pass" placeholder="Enter your password" autocomplete="current-password"/><button type="button" class="eye-btn" onclick="togglePwd('li-pass',this)">👁</button></div>
+          <div class="field-error hidden" id="li-pass-err">⚠ Please enter your password</div>
+        </div>
+        <button type="submit" class="btn-primary">Log In →</button>
+      </form>
+      <div class="auth-divider"></div>
+      <p class="auth-switch">Don't have an account? <a href="#" onclick="showPage('page-signup');return false;">Create an account</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ APP ════════════ -->
+<div id="page-app" class="app-layout page">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="logo-icon">💳</div> Expense Tracker</div>
+    <div class="sidebar-section-label" id="sidebar-section-label">WORKSPACE</div>
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <a href="#" class="active" data-nav="dashboard"  onclick="navTo('dashboard');return false;"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="#" data-nav="expenses"   onclick="navTo('expenses');return false;"><span class="nav-icon">💳</span> Expenses</a>
+      <a href="#" data-nav="categories" onclick="navTo('categories');return false;"><span class="nav-icon">⊞</span> Categories</a>
+      <a href="#" data-nav="budget"     onclick="navTo('budget');return false;"><span class="nav-icon">🎯</span> Budget</a>
+      <a href="#" data-nav="goals"      onclick="navTo('goals');return false;"><span class="nav-icon">⭐</span> Goals</a>
+      <a href="#" data-nav="reports"    onclick="navTo('reports');return false;"><span class="nav-icon">📋</span> Reports</a>
+      <a href="#" data-nav="profile"    onclick="navTo('profile');return false;"><span class="nav-icon">👤</span> Profile</a>
+    </nav>
+    <!-- Colour themes -->
+    <div style="padding:8px 18px 4px;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t-light);text-transform:uppercase">ACCENT COLOUR</div>
+    <div class="theme-row">
+      <div class="theme-dot active" style="background:#3557FF;color:#3557FF" data-accent="blue"  title="Blue"   onclick="setAccent('blue')"></div>
+      <div class="theme-dot" style="background:#8B5CF6;color:#8B5CF6" data-accent="purple" title="Purple" onclick="setAccent('purple')"></div>
+      <div class="theme-dot" style="background:#059669;color:#059669" data-accent="green"  title="Green"  onclick="setAccent('green')"></div>
+      <div class="theme-dot" style="background:#0891B2;color:#0891B2" data-accent="teal"   title="Teal"   onclick="setAccent('teal')"></div>
+      <div class="theme-dot" style="background:#D97706;color:#D97706" data-accent="orange" title="Orange" onclick="setAccent('orange')"></div>
+    </div>
+    <!-- Dark mode -->
+    <div class="dark-toggle" onclick="cycleDark()">
+      <span id="dark-label">🌙 Dark Mode</span>
+      <div class="toggle-switch" id="dark-switch"></div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-avatar">👤</div>
+      <div class="user-info">
+        <div class="uname" id="sidebar-name">User</div>
+        <div class="uemail" id="sidebar-email">user@email.com</div>
+      </div>
+      <button class="logout-btn" onclick="logout()" title="Logout">↪</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- ── DASHBOARD ── -->
+    <section id="sec-dashboard" class="app-section">
+      <div class="dash-header">
+        <div>
+          <div class="dash-date" id="dash-date"></div>
+          <h2 id="dash-greeting">Good evening!</h2>
+          <p class="dash-sub">Here's where things stand today.</p>
+        </div>
+        <div class="dash-header-right">
+          <div class="notif-btn" id="notif-btn" onclick="toggleNotif()" title="Notifications">🔔<div class="notif-dot" id="notif-dot"></div></div>
+          <button class="btn-add" onclick="navTo('add-expense')">+ Add Expense</button>
+        </div>
+      </div>
+      <div class="top-spend-badge" id="top-spend-badge"></div>
+      <div class="stats-row">
+        <div class="stat-card primary">
+          <div class="sc-label">📅 This Month</div>
+          <div class="sc-amount" id="dash-total-amount">₹ 0</div>
+          <div class="sc-sub">Total expenses</div>
+          <a href="#" class="sc-link" onclick="navTo('expenses');return false;">View details →</a>
+          <div class="sc-wallet">👜</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-top">
+            <div><div class="sc-label-sm">Total Expenses</div><div class="sc-amount-sm" id="dash-te">₹ 0</div><div class="sc-change up">↑ 12% <span class="sc-sub-lbl">vs last month</span></div></div>
+            <div class="sc-icon-wrap purple">💳</div>
+          </div>
+          <div class="sparkline" id="spark-expenses"></div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-top">
+            <div><div class="sc-label-sm">Categories</div><div class="sc-amount-sm" id="dash-cats">0</div><div class="sc-change new-badge">Active <span class="sc-sub-lbl">this month</span></div></div>
+            <div class="sc-icon-wrap green">⊞</div>
+          </div>
+          <div class="sparkline" id="spark-cats"></div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-top">
+            <div><div class="sc-label-sm">Budget</div><div class="sc-amount-sm" id="dash-budget-disp">₹ 20,000</div></div>
+            <div class="sc-icon-wrap orange">🎯</div>
+          </div>
+          <div class="sc-progress-wrap"><div class="sc-progress-bar"><div class="fill" id="dash-budget-bar" style="width:0%"></div></div><div class="sc-progress-label" id="dash-budget-lbl">0% used</div></div>
+        </div>
+      </div>
+      <div class="mid-row">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Spending Overview</span><span class="card-badge">📅 This Month</span></div>
+          <div class="donut-wrap">
+            <div class="donut-svg-wrap">
+              <svg class="donut-svg" viewBox="0 0 36 36">
+                <defs><linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="var(--blue)"/><stop offset="100%" stop-color="var(--blue-l)"/></linearGradient></defs>
+                <circle class="donut-track" cx="18" cy="18" r="15.9155"/>
+                <circle class="donut-fill" id="donut-fill" cx="18" cy="18" r="15.9155" stroke-dasharray="0 100"/>
+              </svg>
+              <div class="donut-center"><div class="donut-pct" id="donut-pct">0%</div><div class="donut-sub-text">of budget</div></div>
+            </div>
+            <div class="donut-stats">
+              <div class="ds-row"><span class="ds-dot blue"></span><span class="ds-label">Spent</span><div class="ds-val" id="donut-spent">₹ 0</div></div>
+              <div class="ds-row"><span class="ds-dot gray"></span><span class="ds-label">Remaining</span><div class="ds-val" id="donut-rem">₹ 0</div></div>
+            </div>
+          </div>
+          <div class="card-tip" id="dash-tip">📍 Add your first expense to get started!</div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Quick Actions</span></div>
+          <div class="qa-item" onclick="navTo('add-expense')"><div class="qa-icon green">➕</div><div class="qa-text"><strong>Add a new expense</strong><span>Record your latest expense</span></div><span class="qa-arrow">→</span></div>
+          <div class="qa-item" onclick="navTo('categories')"><div class="qa-icon purple">⊞</div><div class="qa-text"><strong>View categories</strong><span>Explore your spending categories</span></div><span class="qa-arrow">→</span></div>
+          <div class="qa-item" onclick="navTo('goals')"><div class="qa-icon orange">⭐</div><div class="qa-text"><strong>Savings Goals</strong><span>Track your financial goals</span></div><span class="qa-arrow">→</span></div>
+          <div class="qa-item" onclick="exportCSV()"><div class="qa-icon blue">📥</div><div class="qa-text"><strong>Export CSV</strong><span>Download your expenses</span></div><span class="qa-arrow">→</span></div>
+        </div>
+      </div>
+      <!-- Heatmap -->
+      <div class="heatmap-section">
+        <div class="card-header"><span class="card-title">Spending Heatmap</span><span class="card-badge">This Month — each cell = 1 day</span></div>
+        <div class="heatmap-grid" id="heatmap-grid"></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:10px;font-size:11.5px;color:var(--t-gray)">
+          Less <div style="display:flex;gap:3px">
+            <div style="width:14px;height:14px;border-radius:3px;background:var(--bg)"></div>
+            <div style="width:14px;height:14px;border-radius:3px;background:color-mix(in srgb,var(--blue) 25%,transparent)"></div>
+            <div style="width:14px;height:14px;border-radius:3px;background:color-mix(in srgb,var(--blue) 55%,transparent)"></div>
+            <div style="width:14px;height:14px;border-radius:3px;background:var(--blue)"></div>
+          </div> More
+        </div>
+      </div>
+      <!-- Recent -->
+      <div class="table-section">
+        <div class="table-header"><span class="card-title">Recent Transactions</span><a href="#" class="view-all" onclick="navTo('expenses');return false;">View all →</a></div>
+        <table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th>Status</th></tr></thead><tbody id="dash-recent-tbody"></tbody></table>
+        <div id="dash-empty" class="empty-state hidden"><span class="empty-icon">💸</span><p>No transactions yet.</p><a href="#" class="empty-btn" onclick="navTo('add-expense');return false;">+ Add First Expense</a></div>
+      </div>
+    </section>
+
+    <!-- ── EXPENSES ── -->
+    <section id="sec-expenses" class="app-section" style="display:none">
+      <div class="page-header">
+        <div><div class="page-title-wrap"><span class="page-title">Expenses</span><span class="count-badge" id="exp-count-badge">0 expenses</span></div><p class="page-sub">Search, filter and manage your spending.</p></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn-export" onclick="exportCSV()">📥 Export CSV</button><button class="btn-add" onclick="navTo('add-expense')">+ Add Expense</button></div>
+      </div>
+      <div class="filter-bar">
+        <div class="search-wrap"><span class="s-icon">🔍</span><input type="text" id="exp-search" placeholder="Search by description..." oninput="renderExpenses()"/></div>
+        <div class="filter-select-wrap"><select id="exp-cat-filter" onchange="renderExpenses()"><option value="">All categories</option><option>Food & Dining</option><option>Utilities</option><option>Education</option><option>Health</option><option>Entertainment</option><option>Transport</option><option>Shopping</option><option>Other</option></select></div>
+        <div class="filter-select-wrap"><select id="exp-date-filter" onchange="renderExpenses()"><option value="">All dates</option><option value="today">Today</option><option value="week">This week</option><option value="month">This month</option></select></div>
+        <div class="filter-select-wrap"><select id="exp-status-filter" onchange="renderExpenses()"><option value="">All status</option><option>Paid</option><option>Pending</option><option>Failed</option></select></div>
+        <div class="filter-select-wrap"><select id="exp-sort" onchange="renderExpenses()"><option value="date-desc">Date ↓</option><option value="date-asc">Date ↑</option><option value="amount-desc">Amount ↓</option><option value="amount-asc">Amount ↑</option></select></div>
+      </div>
+      <div class="table-section"><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody id="exp-tbody"></tbody></table><div id="exp-empty" class="empty-state hidden"><span class="empty-icon">📂</span><p>No expenses found.</p><a href="#" class="empty-btn" onclick="navTo('add-expense');return false;">+ Add Expense</a></div></div>
+    </section>
+
+    <!-- ── ADD/EDIT EXPENSE ── -->
+    <section id="sec-add-expense" class="app-section" style="display:none">
+      <a href="#" class="back-link" onclick="navTo('expenses');return false;">← Back to Expenses</a>
+      <div class="page-header" style="margin-bottom:20px"><div><div class="page-title" id="add-exp-title">Add New Expense</div><p class="page-sub">Keep track of your spending by adding a new expense.</p></div></div>
+      <div class="form-card">
+        <form id="add-exp-form" novalidate>
+          <input type="hidden" id="edit-id" value=""/>
+          <div class="form-row">
+            <div class="form-field"><label>Amount</label><div class="form-field-inner"><span class="fi-icon">₹</span><input type="number" id="f-amount" placeholder="Enter amount (e.g. 1250.00)" min="0" step="0.01"/></div></div>
+            <div class="form-field"><label>Category</label><div class="form-field-inner"><span class="fi-icon">⊞</span><select id="f-category"><option value="">Select category</option><option>Food & Dining</option><option>Utilities</option><option>Education</option><option>Health</option><option>Entertainment</option><option>Transport</option><option>Shopping</option><option>Other</option></select><span class="fi-caret">▾</span></div></div>
+          </div>
+          <div class="form-row single"><div class="form-field"><label>Description</label><div class="form-field-inner"><span class="fi-icon top">📄</span><textarea id="f-desc" style="padding-left:42px" placeholder="Add notes or details (optional)"></textarea></div></div></div>
+          <div class="form-row">
+            <div class="form-field"><label>Payment Method</label><div class="form-field-inner"><span class="fi-icon">💳</span><select id="f-payment"><option value="">Select payment method</option><option>Cash</option><option>Credit Card</option><option>Debit Card</option><option>UPI</option><option>Net Banking</option></select><span class="fi-caret">▾</span></div></div>
+            <div class="form-field"><label>Expense Date</label><div class="form-field-inner"><input type="date" id="f-date" style="padding-left:14px"/><span class="fi-cal">📅</span></div></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label>Payment Status</label><div class="form-field-inner"><span class="fi-icon">✅</span><select id="f-status"><option value="Paid">Paid</option><option value="Pending">Pending</option><option value="Failed">Failed</option></select><span class="fi-caret">▾</span></div></div>
+            <div class="form-field"><label>Quick Notes</label><div class="form-field-inner"><span class="fi-icon top">📝</span><textarea id="f-notes" style="padding-left:42px" placeholder="Additional notes (optional)"></textarea></div></div>
+          </div>
+          <div class="form-row single"><div class="form-field"><label>Receipt (Optional)</label><div class="upload-zone" onclick="document.getElementById('f-receipt').click()"><div class="up-icon">☁️</div><div class="up-label">Upload receipt</div><div class="up-sub">Drag & drop or click to upload</div><input type="file" id="f-receipt" accept="image/*,.pdf" style="display:none" onchange="showReceiptName(this)"/></div><div id="receipt-name" style="font-size:12px;color:var(--t-gray);margin-top:7px"></div></div></div>
+          <div class="form-tip"><span class="tip-icon">ℹ️</span>Keep your spending organised and stay within your budget!</div>
+          <div class="form-actions"><button type="button" class="btn-cancel" onclick="navTo('expenses')">Cancel</button><button type="submit" class="btn-submit" id="add-exp-submit-btn">➕ Add Expense</button></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ── CATEGORIES ── -->
+    <section id="sec-categories" class="app-section" style="display:none">
+      <div class="page-header"><div><div class="page-title">Categories</div><p class="page-sub">Overview of your spending by category.</p></div></div>
+      <div class="categories-grid" id="cat-grid"></div>
+    </section>
+
+    <!-- ── BUDGET ── -->
+    <section id="sec-budget" class="app-section" style="display:none">
+      <div class="page-header"><div><div class="page-title">Budget</div><p class="page-sub">Set and track your monthly budget limits.</p></div><button class="btn-add" onclick="openBudgetModal()">+ Set Budget</button></div>
+      <div class="card" style="margin-bottom:22px">
+        <div class="card-header"><span class="card-title">Monthly Budget Overview</span><span class="card-badge">📅 This Month</span></div>
+        <div style="display:flex;align-items:center;gap:40px;margin-bottom:18px;flex-wrap:wrap">
+          <div><div style="font-size:12px;color:var(--t-gray);margin-bottom:3px;font-weight:500">Total Budget</div><div style="font-size:30px;font-weight:900;color:var(--t-dark)" id="bud-total-disp">₹ 20,000</div></div>
+          <div><div style="font-size:12px;color:var(--t-gray);margin-bottom:3px;font-weight:500">Spent</div><div style="font-size:30px;font-weight:900;color:var(--blue)" id="bud-spent-disp">₹ 0</div></div>
+          <div><div style="font-size:12px;color:var(--t-gray);margin-bottom:3px;font-weight:500">Remaining</div><div style="font-size:30px;font-weight:900;color:var(--green)" id="bud-rem-disp">₹ 0</div></div>
+        </div>
+        <div class="budget-bar"><div class="fill blue" id="bud-bar" style="width:0%"></div></div>
+        <div style="font-size:12.5px;color:var(--t-gray);margin-top:7px;font-weight:500" id="bud-pct-lbl">0% used</div>
+        <div id="budget-warn" class="hidden" style="margin-top:14px;padding:11px 16px;background:var(--orange-bg);color:#92400E;border-radius:10px;font-size:13px;font-weight:600;border:1px solid rgba(245,158,11,.2)">⚠️ You've used over 80% of your monthly budget!</div>
+      </div>
+      <div id="budget-cat-list"></div>
+    </section>
+
+    <!-- ── GOALS ── -->
+    <section id="sec-goals" class="app-section" style="display:none">
+      <div class="page-header"><div><div class="page-title">Savings Goals</div><p class="page-sub">Set goals and track your financial progress.</p></div><button class="btn-add" onclick="openGoalModal()">+ Add Goal</button></div>
+      <div class="goals-grid" id="goals-grid"></div>
+    </section>
+
+    <!-- ── REPORTS ── -->
+    <section id="sec-reports" class="app-section" style="display:none">
+      <div class="page-header"><div><div class="page-title">Reports</div><p class="page-sub">Detailed insights into your spending habits.</p></div><button class="btn-export" onclick="exportCSV()">📥 Export CSV</button></div>
+      <div class="reports-grid">
+        <div class="card"><div class="card-header"><span class="card-title">Monthly Spending</span><span class="card-badge">Last 6 months</span></div><canvas id="bar-chart-canvas" height="160"></canvas></div>
+        <div class="card"><div class="card-header"><span class="card-title">Category Breakdown</span><span class="card-badge">This Month</span></div><canvas id="pie-chart-canvas" height="180"></canvas></div>
+      </div>
+      <div class="table-section"><div class="table-header"><span class="card-title">All Transactions</span><span id="rep-total-lbl" style="font-size:13.5px;color:var(--t-gray);font-weight:700"></span></div><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th>Status</th></tr></thead><tbody id="rep-tbody"></tbody></table><div id="rep-empty" class="empty-state hidden"><span class="empty-icon">📊</span><p>No data yet.</p></div></div>
+    </section>
+
+    <!-- ── PROFILE ── -->
+    <section id="sec-profile" class="app-section" style="display:none">
+      <div class="page-header"><div><div class="page-title">Profile</div><p class="page-sub">Manage your information and preferences.</p></div></div>
+      <div class="profile-header-card">
+        <div class="profile-avatar-big">👤</div>
+        <div style="position:relative;z-index:1">
+          <div style="font-size:24px;font-weight:900" id="prof-name-disp">User</div>
+          <div style="font-size:14px;opacity:.8" id="prof-email-disp">user@email.com</div>
+          <div style="margin-top:8px;font-size:13px;opacity:.7">Member since 2026</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="form-card">
+          <h3 style="font-size:16px;font-weight:700;margin-bottom:20px;color:var(--t-dark)">Edit Profile</h3>
+          <form id="profile-form">
+            <div class="form-field" style="margin-bottom:16px"><label>Full Name</label><div class="form-field-inner"><span class="fi-icon">👤</span><input type="text" id="prof-name-inp" placeholder="Your full name"/></div></div>
+            <div class="form-field" style="margin-bottom:16px"><label>Email</label><div class="form-field-inner"><span class="fi-icon">✉️</span><input type="email" id="prof-email-inp" placeholder="Your email"/></div></div>
+            <div class="form-field" style="margin-bottom:20px"><label>New Password <span style="color:var(--t-gray);font-weight:400">(optional)</span></label><div class="form-field-inner"><span class="fi-icon">🔒</span><input type="password" id="prof-pass-inp" placeholder="New password"/></div></div>
+            <button type="submit" class="btn-submit" style="width:100%;justify-content:center">💾 Save Changes</button>
+          </form>
+        </div>
+        <div class="form-card">
+          <h3 style="font-size:16px;font-weight:700;margin-bottom:20px;color:var(--t-dark)">Account Stats</h3>
+          <div id="profile-stats" style="display:flex;flex-direction:column;gap:12px"></div>
+          <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border)">
+            <h4 style="font-size:14px;font-weight:700;margin-bottom:14px;color:var(--t-dark)">Display Mode</h4>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13.5px;color:var(--t-gray)"><input type="radio" name="theme" value="light" onchange="setTheme('light')" style="accent-color:var(--blue)"/> ☀️ Light Mode</label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13.5px;color:var(--t-gray)"><input type="radio" name="theme" value="dark"  onchange="setTheme('dark')"  style="accent-color:var(--blue)"/> 🌙 Dark Mode</label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13.5px;color:var(--t-gray)"><input type="radio" name="theme" value="amoled" onchange="setTheme('amoled')" style="accent-color:var(--blue)"/> ⚫ AMOLED Black</label>
+            </div>
+          </div>
+          <div style="margin-top:18px"><button onclick="logout()" style="width:100%;padding:12px;background:var(--red-bg);color:var(--red);border:none;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s" onmouseover="this.style.background=getComputedStyle(document.documentElement).getPropertyValue('--red');this.style.color='#fff'" onmouseout="this.style.background='';this.style.color=''">↪ Logout</button></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="navTo('add-expense')" title="Add Expense">+</button>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="del-modal">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:44px;margin-bottom:14px">🗑️</div>
+    <div class="modal-title">Delete Expense?</div>
+    <p class="modal-sub">This action cannot be undone.</p>
+    <div class="modal-actions" style="justify-content:center"><button class="btn-cancel" onclick="closeDelModal()">Cancel</button><button class="btn-submit" style="background:linear-gradient(135deg,#EF4444,#F87171)" onclick="confirmDelete()">Delete</button></div>
+  </div>
+</div>
+
+<!-- BUDGET MODAL -->
+<div class="modal-overlay" id="budget-modal">
+  <div class="modal">
+    <div style="font-size:38px;text-align:center;margin-bottom:12px">🎯</div>
+    <div class="modal-title" style="text-align:center">Set Monthly Budget</div>
+    <p class="modal-sub" style="text-align:center">Enter your total monthly budget limit.</p>
+    <div class="form-field"><label>Budget Amount (₹)</label><div class="form-field-inner"><span class="fi-icon">₹</span><input type="number" id="budget-input" placeholder="e.g. 20000" min="0" style="width:100%;padding:13px 14px 13px 38px;border:1.5px solid var(--border);border-radius:11px;font-size:15px;outline:none;background:var(--bg);color:var(--t-dark)"/></div></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeBudgetModal()">Cancel</button><button class="btn-submit" onclick="saveBudget()">🎯 Save Budget</button></div>
+  </div>
+</div>
+
+<!-- GOAL MODAL -->
+<div class="modal-overlay" id="goal-modal">
+  <div class="modal">
+    <div style="font-size:38px;text-align:center;margin-bottom:12px">⭐</div>
+    <div class="modal-title" style="text-align:center" id="goal-modal-title">Add Savings Goal</div>
+    <p class="modal-sub" style="text-align:center">Set a target and track your progress.</p>
+    <input type="hidden" id="goal-edit-id"/>
+    <div class="form-field" style="margin-bottom:14px"><label>Goal Name</label><div class="form-field-inner"><span class="fi-icon">⭐</span><input type="text" id="g-name" placeholder="e.g. New Phone, Vacation" style="width:100%;padding:13px 14px 13px 38px;border:1.5px solid var(--border);border-radius:11px;font-size:14px;outline:none;background:var(--bg);color:var(--t-dark)"/></div></div>
+    <div class="form-row" style="margin-bottom:14px">
+      <div class="form-field"><label>Target Amount (₹)</label><div class="form-field-inner"><span class="fi-icon">₹</span><input type="number" id="g-target" placeholder="50000" min="0" style="width:100%;padding:13px 14px 13px 38px;border:1.5px solid var(--border);border-radius:11px;font-size:14px;outline:none;background:var(--bg);color:var(--t-dark)"/></div></div>
+      <div class="form-field"><label>Saved So Far (₹)</label><div class="form-field-inner"><span class="fi-icon">💰</span><input type="number" id="g-saved" placeholder="0" min="0" style="width:100%;padding:13px 14px 13px 38px;border:1.5px solid var(--border);border-radius:11px;font-size:14px;outline:none;background:var(--bg);color:var(--t-dark)"/></div></div>
+    </div>
+    <div class="form-field" style="margin-bottom:14px"><label>Icon (emoji)</label><div class="form-field-inner"><span class="fi-icon">✨</span><input type="text" id="g-icon" placeholder="📱" maxlength="4" style="width:100%;padding:13px 14px 13px 38px;border:1.5px solid var(--border);border-radius:11px;font-size:20px;outline:none;background:var(--bg);color:var(--t-dark)"/></div></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeGoalModal()">Cancel</button><button class="btn-submit" onclick="saveGoal()">⭐ Save Goal</button></div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="app.js"></script>
+</body>
+</html>
